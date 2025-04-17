@@ -3,6 +3,8 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 import requests
@@ -12,26 +14,34 @@ from src.config import PRODUCT_LIST
 
 def get_amazon_price_selenium(url):
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")  # Run in background
+    options.add_argument("--headless")
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
     options.add_argument("--window-size=1920,1080")
 
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-    driver.get(url)
-
-    # Give the page some time to load
-    time.sleep(3)
-
+    
     try:
-        price_element = driver.find_element(By.CLASS_NAME, "a-offscreen")
-        price = float(price_element.text.strip().replace("$", "").replace(",", ""))
+        driver.get(url)
+
+        # Wait up to 10 seconds for price element to be present
+        price_element = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "a-offscreen"))
+        )
+
+        price_text = price_element.text.strip().replace("$", "").replace(",", "")
+        if price_text:
+            return float(price_text)
+        else:
+            print("Amazon price element found but text is empty")
+            return None
+
     except Exception as e:
         print("Price not found:", e)
-        price = None
+        return None
+
     finally:
         driver.quit()
-    return price
 
 
 def parse_ippodo_price(soup):

@@ -17,7 +17,10 @@ selected_product = render_sidebar(PRODUCT_LIST)
 
 # Fetch and display price
 price = get_current_price(selected_product)
-st.metric(label="Current Price", value=f"${price:.2f}")
+if price is not None:
+    st.metric(label="Current Price", value=f"${price:.2f}")
+else:
+    st.error("❌ Failed to fetch price. Please try again or check the product page.")
 
 # Insert into DB
 insert_price(selected_product, price)

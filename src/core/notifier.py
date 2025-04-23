@@ -12,8 +12,11 @@ load_dotenv()
 EMAIL_USER = os.getenv("EMAIL_USER")
 EMAIL_PASS = os.getenv("EMAIL_PASS")
 
-if not EMAIL_USER or not EMAIL_PASS:
-    st.warning("⚠️ Email credentials are not set. Email functionality will be disabled.")
+def get_email_credentials():
+    if not EMAIL_USER or not EMAIL_PASS:
+        st.warning("⚠️ Email credentials are not set. Email functionality will be disabled.")
+        return None, None
+    return EMAIL_USER, EMAIL_PASS
 
 
 def send_price_alert(product_name, price, receiver_email, sender_email, sender_password, product_url):

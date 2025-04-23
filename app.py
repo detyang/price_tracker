@@ -4,7 +4,8 @@ import streamlit as st
 from src.config import PRODUCT_LIST
 from src.ui import render_sidebar
 from src.core.fetcher import get_current_price
-from src.core.notifier import send_price_alert
+from src.core.notifier import send_price_alert, get_email_credentials
+SENDER_EMAIL, SENDER_PASS = get_email_credentials()
 from src.core.db import init_db, insert_price, fetch_price_history
 
 # Setup

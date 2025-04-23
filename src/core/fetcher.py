@@ -17,6 +17,10 @@ def parse_ippodo_price(soup):
             return None
     return None
 
+def parse_ippodo_stock(soup):
+    # Check for the add-to-cart form
+    add_to_cart_form = soup.find("form", {"action": "/cart/add"})
+    return add_to_cart_form is not None
 
 def get_current_price(product_name):
     url = PRODUCT_LIST[product_name]
@@ -36,6 +40,8 @@ def get_current_price(product_name):
     soup = BeautifulSoup(response.content, "html.parser")
 
     if "ippodo-tea.co.jp" in url:
-        return parse_ippodo_price(soup)
+        price = parse_ippodo_price(soup)
+        stock = parse_ippodo_stock(soup)
+        return price, stock
     else:
-        return None
+        return None, None

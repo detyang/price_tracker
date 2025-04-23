@@ -2,6 +2,7 @@
 
 import os
 import smtplib
+import streamlit as st
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
@@ -11,8 +12,11 @@ load_dotenv()
 EMAIL_USER = os.getenv("EMAIL_USER")
 EMAIL_PASS = os.getenv("EMAIL_PASS")
 
+if not EMAIL_USER or not EMAIL_PASS:
+    st.warning("⚠️ Email credentials are not set. Email functionality will be disabled.")
 
-def send_price_alert(product_name, price, receiver_email, sender_email, sender_password):
+
+def send_price_alert(product_name, price, receiver_email, sender_email, sender_password, product_url):
     if not sender_email or not sender_password:
         print("[ERROR] Email credentials not provided.")
         return
@@ -24,7 +28,7 @@ def send_price_alert(product_name, price, receiver_email, sender_email, sender_p
         📢 Good news!
 
         The product **{product_name}** is now priced at ¥{price:,.0f}.
-        Visit your price tracker to view more details.
+        🔗 [View Product]({product_url})
 
         -- Your Price Tracker Bot
     """

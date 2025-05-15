@@ -2,21 +2,39 @@
 
 import os
 import smtplib
-import streamlit as st
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from dotenv import load_dotenv
 
-load_dotenv()
 
-EMAIL_USER = os.getenv("EMAIL_USER")
-EMAIL_PASS = os.getenv("EMAIL_PASS")
+try:
+    import streamlit as st
+    USE_STREAMLIT = True
+except ImportError:
+    USE_STREAMLIT = False
+
+# Load local .env if not on Streamlit Cloud
+if not USE_STREAMLIT:
+    from dotenv import load_dotenv
+    load_dotenv()
+
 
 def get_email_credentials():
-    if not EMAIL_USER or not EMAIL_PASS:
-        st.warning("⚠️ Email credentials are not set. Email functionality will be disabled.")
+    if USE_STREAMLIT:
+        sender_email = st.secrets.get("EMAIL_USER")
+        sender_password = st.secrets.get("EMAIL_PASS")
+    else:
+        sender_email = os.getenv("EMAIL_USER")
+        sender_password = os.getenv("EMAIL_PASS")
+
+    if not sender_email or not sender_password:
+        warning = "⚠️ Email credentials are not set. Email functionality will be disabled."
+        if USE_STREAMLIT:
+            st.warning(warning)
+        else:
+            print(f"[WARN] {warning}")
         return None, None
-    return EMAIL_USER, EMAIL_PASS
+
+    return sender_email, sender_password
 
 
 def send_price_alert(product_name, price, receiver_email, sender_email, sender_password, product_url):
@@ -25,16 +43,14 @@ def send_price_alert(product_name, price, receiver_email, sender_email, sender_p
         return
 
     subject = f"[Price Alert] {product_name} dropped to ¥{price:,.0f}"
-    body = f"""\
-        Hi there,
+    body = f"""Hi there,
 
-        📢 Good news!
+📢 Good news!
 
-        The product **{product_name}** is now priced at ¥{price:,.0f}.
-        🔗 [View Product]({product_url})
+The product **{product_name}** is now priced at ¥{price:,.0f}.
+🔗 View Product: {product_url}
 
-        -- Your Price Tracker Bot
-    """
+-- Your Price Tracker Bot"""
 
     msg = MIMEMultipart()
     msg["From"] = sender_email

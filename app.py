@@ -1,6 +1,7 @@
 # app.py
 
 import streamlit as st
+st.set_page_config(page_title="Price Tracker", layout="centered")
 from src.config import PRODUCT_LIST
 from src.ui import render_sidebar
 from src.core.fetcher import get_current_price
@@ -9,7 +10,6 @@ SENDER_EMAIL, SENDER_PASS = get_email_credentials()
 from src.core.db import init_db, insert_price, fetch_price_history
 
 # Setup
-st.set_page_config(page_title="Price Tracker", layout="centered")
 st.title("🛒 Price Tracker")
 init_db()
 

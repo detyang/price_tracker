@@ -6,32 +6,23 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 
-try:
-    import streamlit as st
-    USE_STREAMLIT = True
-except ImportError:
-    USE_STREAMLIT = False
-
-# Load local .env if not on Streamlit Cloud
-if not USE_STREAMLIT:
-    from dotenv import load_dotenv
-    load_dotenv()
-
-
 def get_email_credentials():
-    if USE_STREAMLIT:
+    sender_email = None
+    sender_password = None
+
+    try:
+        import streamlit as st
         sender_email = st.secrets.get("EMAIL_USER")
         sender_password = st.secrets.get("EMAIL_PASS")
-    else:
+    except Exception:
+        # Fall back to dotenv
+        from dotenv import load_dotenv
+        load_dotenv()
         sender_email = os.getenv("EMAIL_USER")
         sender_password = os.getenv("EMAIL_PASS")
 
     if not sender_email or not sender_password:
-        warning = "⚠️ Email credentials are not set. Email functionality will be disabled."
-        if USE_STREAMLIT:
-            st.warning(warning)
-        else:
-            print(f"[WARN] {warning}")
+        print("[WARN] Email credentials not set.")
         return None, None
 
     return sender_email, sender_password
